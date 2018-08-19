@@ -1,6 +1,6 @@
 console.log('this is loaded');
 
-exports.twitter = {
+exports.reddit = {
   userAgent: process.env.REDDIT_USER_AGENT,
   clientId: process.env.REDDIT_CLIENT_ID,
   clientSecret: process.env.REDDIT_CLIENT_SECRET,
