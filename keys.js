@@ -1,4 +1,4 @@
-console.log('this is loaded');
+//console.log('this is loaded');
 
 exports.reddit = {
   userAgent: process.env.REDDIT_USER_AGENT,
