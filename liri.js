@@ -25,6 +25,9 @@ var run = function (args) {
         console.log('node liri.js movie-this "<movie name here>"');
         console.log('--> Searches OMDB for a movie with that title.');
         console.log();
+        console.log('node liri.js do-what-it-says');
+        console.log('--> Reads a list of commands from random.txt and executes them all... Not necessarily in order, though.');
+        console.log();
 
         console.log('node liri.js help');
         console.log('--> Provides a list of available options. But you already knew that ;)');
