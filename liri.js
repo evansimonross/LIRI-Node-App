@@ -59,6 +59,8 @@ var run = function (args) {
         text += '--> Reads a list of commands from random.txt and executes them all... Not necessarily in order, though.\n\n';
         text += 'node liri.js help\n';
         text += '--> Provides a list of available options. But you already knew that ;)\n\n';
+        text += 'node liri.js clear-log\n';
+        text += '--> Erases the log of all its contents. Make sure you have a backup if you need it!\n\n';
         log(text);
     }
 
@@ -138,6 +140,16 @@ var run = function (args) {
             console.log(line);
             run(newArgs);
         });
+    }
+
+    else if(args[2] === "clear-log"){
+        fs.writeFile(
+            'log.txt',
+            "",
+            function (error) {
+                if (error) { console.error }
+            }
+        )
     }
 
     else{
