@@ -10,77 +10,112 @@ var keys = require('./keys.js');
 var spotify = new Spotify(keys.spotify);
 var reddit = new Reddit(keys.reddit);
 
+var log = function (text) { 
+    fs.appendFile(
+        'log.txt',
+        text,
+        function (error) {
+            if (error) { console.error }
+        }
+    )
+    console.log(text);
+}
+
 var run = function (args) {
 
-    if (args[2] === "help") {
-        console.log('Here are the currently available commands:')
-        console.log();
-        console.log('node liri.js spotify-this-song "<song name here>"');
-        console.log('--> Searches Spotify for a song with that title.');
-        console.log();
-        console.log('node liri.js my-comments #');
-        console.log('--> Searches Reddit for user comments.');
-        console.log('----> An integer argument is optional. If one is supplied, it sets the maximum number of results. It is 20 by default.')
-        console.log();
-        console.log('node liri.js movie-this "<movie name here>"');
-        console.log('--> Searches OMDB for a movie with that title.');
-        console.log();
-        console.log('node liri.js do-what-it-says');
-        console.log('--> Reads a list of commands from random.txt and executes them all... Not necessarily in order, though.');
-        console.log();
-
-        console.log('node liri.js help');
-        console.log('--> Provides a list of available options. But you already knew that ;)');
+    var command = "";
+    for (var i = 2; i < args.length; i++) {
+        if(args[i].substring(0,1)==='"'){
+            args[i] = args[i].substring(1,args[i].length-1);
+        }
+        command += args[i];
+        if (i < args.length - 1) {
+            command += " ";
+        }
+        else{
+            command += "\n";
+        }
     }
+
+    fs.appendFile(
+        'log.txt',
+        'node liri.js ' + command,
+        function (error) {
+            if (error) { console.error }
+        }
+    )
+
+    if (args[2] === "help") {
+        var text = "";
+        text = 'Here are the currently available commands:\n\n';
+        text += 'node liri.js spotify-this-song "<song name here>"\n';
+        text += '--> Searches Spotify for a song with that title.\n\n';
+        text += 'node liri.js my-comments #\n';
+        text += '--> Searches Reddit for user comments.\n';
+        text += '----> An integer argument is optional. If one is supplied, it sets the maximum number of results. It is 20 by default.\n\n';
+        text += 'node liri.js movie-this "<movie name here>"\n';
+        text += '--> Searches OMDB for a movie with that title.\n\n';
+        text += 'node liri.js do-what-it-says\n';
+        text += '--> Reads a list of commands from random.txt and executes them all... Not necessarily in order, though.\n\n';
+        text += 'node liri.js help\n';
+        text += '--> Provides a list of available options. But you already knew that ;)\n\n';
+        log(text);
+    }
+
     else if (args[2] === "spotify-this-song") {
         spotify
             .search({ type: 'track', query: args[3] })
-            .then(function (response) {
+            .then((response) => {
                 let track = response.tracks.items[0];
-                console.log();
-                console.log('Track: ' + track.name);
-                console.log('Artist: ' + track.artists[0].name);
-                console.log('Album: ' + track.album.name);
-                console.log(track.href);
-                console.log();
+                var text = "";
+                text = 'Track: ' + track.name + '\n';
+                text += 'Artist: ' + track.artists[0].name + '\n';
+                text += 'Album: ' + track.album.name + '\n';
+                text += track.href + '\n\n';
+                log(text);
             })
             .catch(function (err) {
-                console.log(err);
+                var text = err;
+                log(text);
             });
+
     }
 
     else if (args[2] === "my-comments") {
         reddit.getUser(reddit.username).getComments().then(function (res) {
             var numberToDisplay = parseInt(args[3]) || 20;
             if (numberToDisplay > res.length || numberToDisplay < 0) { numberToDisplay = res.length; }
+            var text = "";
             for (var i = 0; i < numberToDisplay; i++) {
-                console.log();
-                console.log(res[i].body);
-                console.log(new Date(new Date(parseInt(res[i].created_utc) * 1000) + ' UTC'));
+                text += res[i].body + '\n';
+                text += new Date(new Date(parseInt(res[i].created_utc) * 1000) + ' UTC') + '\n\n';
             }
+            log(text);
         });
     }
 
     else if (args[2] === "movie-this") {
-        request("https://www.omdbapi.com/?t=" + args[3] + "&apikey=" + keys.omdb.key + "&r=json", function (err, res, body) {
+        request("https://www.omdbapi.com/?t=" + args[3] + "&apikey=" + keys.omdb.key + "&r=json", (err, res, body) => {
+            var text = "";
             if (!err && res.statusCode === 200) {
                 let movie = JSON.parse(body)
-                console.log();
-                console.log(movie.Title + ' (' + movie.Rated + ')');
-                console.log(movie.Year + ' - ' + movie.Country + ' (' + movie.Language + ')');
-                console.log();
-                console.log(movie.Plot);
-                console.log();
-                console.log("Starring...");
+                text += movie.Title + ' (' + movie.Rated + ')\n';
+                text += movie.Year + ' - ' + movie.Country + ' (' + movie.Language + ')\n\n';
+                text += movie.Plot + '\n\n';
+                text += "Starring...\n";
                 movie.Actors.split(', ').forEach(function (actor) {
-                    console.log('--> ' + actor);
+                    text += '--> ' + actor + '\n';
                 });
-                console.log();
-                console.log("The critics say...");
+                text += "\nThe critics say...\n";
                 movie.Ratings.forEach(function (rating) {
-                    console.log('--> ' + rating.Source + ": " + rating.Value)
+                    text += '--> ' + rating.Source + ": " + rating.Value + '\n';
                 })
+                text += '\n';
             }
+            else{
+                text + "ERROR: OMDB could not be reached."
+            }
+            log(text);
         })
     }
 
@@ -95,7 +130,7 @@ var run = function (args) {
             var index = line.indexOf(" ");
             if (index != -1) {
                 newArgs.push(line.substring(0, index));
-                newArgs.push(line.substring(index, line.length));
+                newArgs.push(line.substring(index+1, line.length));
             }
             else {
                 newArgs.push(line);
@@ -105,6 +140,10 @@ var run = function (args) {
         });
     }
 
+    else{
+        text = "Error: Command Not Recognized\n\n";
+        log(text);
+    }
 }
 
 run(process.argv);
