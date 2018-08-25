@@ -73,7 +73,7 @@ var run = function (args) {
                 text = 'Track: ' + track.name + '\n';
                 text += 'Artist: ' + track.artists[0].name + '\n';
                 text += 'Album: ' + track.album.name + '\n';
-                text += track.href + '\n\n';
+                text += track.preview_url + '\n\n';
                 log(text);
             })
             .catch(function (err) {
