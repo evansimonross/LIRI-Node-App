@@ -89,8 +89,9 @@ var run = function (args) {
             if (numberToDisplay > res.length || numberToDisplay < 0) { numberToDisplay = res.length; }
             var text = "";
             for (var i = 0; i < numberToDisplay; i++) {
+                //console.log(res[i]);
                 text += res[i].body + '\n';
-                text += new Date(new Date(parseInt(res[i].created_utc) * 1000) + ' UTC') + '\n\n';
+                text += res[i].subreddit_name_prefixed + " @ " + new Date(new Date(parseInt(res[i].created_utc) * 1000) + ' UTC') + '\n\n';
             }
             log(text);
         });
